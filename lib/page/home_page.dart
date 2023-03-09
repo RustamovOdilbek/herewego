@@ -88,28 +88,33 @@ class _HomePageState extends State<HomePage> {
   Widget itemOfPost(Post post){
     return  Container(
       padding: EdgeInsets.all(20),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+
+          Container(
+            margin: EdgeInsets.only(right: 20),
+            width: double.infinity,
+            height: 150,
+            child: post.img_url != null
+                ? Image.network(post.img_url!, fit: BoxFit.cover,)
+                :Image.asset("assets/images/ic_default.jpg", fit: BoxFit.cover,),
+          ),
+
+          Row(
             children: [
-              Row(
-                children: [
-                  Text(post.firstName!, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
+              Text(post.firstName!, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
 
-                  SizedBox(width: 10,),
+              SizedBox(width: 10,),
 
-                  Text(post.lastname!, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
-                ],
-              ),
-              SizedBox(height: 10,),
-              Text(post.data!, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
-
-              SizedBox(height: 10,),
-              Text(post.content!, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),)
+              Text(post.lastname!, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
             ],
-          )
+          ),
+          SizedBox(height: 10,),
+          Text(post.data!, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
+
+          SizedBox(height: 10,),
+          Text(post.content!, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),)
         ],
       ),
     );
