@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../model/post_model.dart';
 import '../service/auth_service.dart';
+import '../service/rtdb_service.dart';
+import 'create_page.dart';
 
 class HomePage extends StatefulWidget {
   static final String id = "home_page";
@@ -10,21 +13,104 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool isLoading = false;
+  List<Post> items = [];
+
+  Future _callCreatePage() async{
+    Map results = await Navigator.of(context)
+        .push(new MaterialPageRoute(builder: (BuildContext contect){
+      return CreatePage();
+    }));
+
+    if(results != null && results.containsKey('data')){
+      print(results['data']);
+      _apiPostList();
+    }
+  }
+
+  _apiPostList() async{
+    setState(() {
+      isLoading = true;
+    });
+    var list = await RTDBService.getPosts();
+    items.clear();
+    setState(() {
+      items = list;
+      isLoading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _apiPostList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.orange,
+        title: Text("Firebase"),
+        actions: [
+          IconButton(
+              onPressed: (){
+                AuthService.signOutUser(context);
+              },
+              icon: Icon(Icons.exit_to_app)
+          )
+        ],
       ),
-      body: Container(
-        child: Center(
-          child: TextButton(
-            onPressed: () {
-              AuthService.signOutUser(context);
+      body: Stack(
+        children: [
+          ListView.builder(
+            itemCount: items.length,
+            itemBuilder: (context, index){
+              return itemOfPost(items[index]);
             },
-            child: Text("Log Out", style: TextStyle(color: Colors.red),),
           ),
-        ),
+
+          isLoading ? Center(
+            child: CircularProgressIndicator(),
+          ) : SizedBox.shrink()
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        child: Icon(Icons.add),
+        onPressed: (){
+          _callCreatePage();
+        },
+      ),
+    );
+  }
+
+  Widget itemOfPost(Post post){
+    return  Container(
+      padding: EdgeInsets.all(20),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(post.firstName!, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
+
+                  SizedBox(width: 10,),
+
+                  Text(post.lastname!, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
+                ],
+              ),
+              SizedBox(height: 10,),
+              Text(post.data!, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
+
+              SizedBox(height: 10,),
+              Text(post.content!, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),)
+            ],
+          )
+        ],
       ),
     );
   }
